@@ -1,0 +1,83 @@
+CREATE DATABASE studenci;
+
+USE studenci;
+
+CREATE TABLE IF NOT EXISTS dane_osobowe (
+    student_nrIndeksu INT NOT NULL,
+    student_nazwisko VARCHAR(100) NOT NULL,
+    student_imiona VARCHAR(100) NOT NULL,
+    student_dataUrodzenia DATE NOT NULL,
+    student_miastoZamieszkania VARCHAR(100) NOT NULL,
+	
+    PRIMARY KEY(student_nrIndeksu)
+
+);
+
+TRUNCATE TABLE dane_osobowe;
+
+INSERT INTO dane_osobowe
+	(student_nrIndeksu, student_nazwisko, student_imiona,
+	student_dataUrodzenia, student_miastoZamieszkania)
+VALUES
+	('123456','Nowak', 'Jan', '1990-02-04', 'Wrocław'),
+	('137654','Kowalski', 'Jerzy', '1990-09-30', 'Oława'),
+	('143678','Dudek', 'Tomasz Michał', '1990-10-10', 'Wrocław'),
+	('111111','Dąbrowska', 'Joanna', '1990-12-08', 'Bielawa'),
+	('252258','Heda', 'Marcin Michał', '1988-08-03', 'Toruń'),
+	('256951','Bukowicz', 'Marta Joanna', '1989-01-01', 'Rzeszów');
+
+SELECT nazwisko, imie FROM dane_osobowe;
+
+SELECT nrIndeksu, dataUrodzenia FROM dane_osobowe WHERE dataUrodzenia < '1990-01-01';
+
+SELECT nazwisko, imie FROM dane_osobowe ORDER BY nazwisko;
+
+SELECT nrIndeksu, miejsceZamieszkania FROM dane_osobowe WHERE miejsceZamieszkania != 'Wrocław';
+
+DELETE FROM dane_osobowe WHERE nrIndeksu = 111111;
+
+INSERT INTO dane_osobowe (student_nrIndeksu, student_nazwisko, student_imiona, student_dataUrodzenia, student_miastoZamieszkania)
+VALUES (128745, 'Martyniuk','Karol Marek', '1990-08-24', 'Wrocław');
+
+
+CREATE TABLE kurs_jprog (
+student_nrIndeksu INT NOT NULL,
+student_ocena FLOAT,
+student_czyZaliczenie CHAR(3),
+student_czyPowtorkowy CHAR(3),
+PRIMARY KEY (student_nrIndeksu),
+FOREIGN KEY (student_nrIndeksu) REFERENCES dane_osobowe(student_nrIndeksu)
+);
+
+
+
+
+SELECT przesylka_ID, przesylka_nadawca FROM przesylki;
+
+SELECT ID, przesylka_miastoDostarczenia FROM przesylki
+WHERE przesylka_dataNadania BETWEEN '2018-12-01' AND '2018-12-31'
+ORDER BY przesylka_miastoDostarczenia;
+
+SELECT przesylka_odbiorca FROM przesylki WHERE przesylka_odbiorca LIKE 'p%';
+
+SELECT ID, przesylka_dataNadania FROM przesylki WHERE przesylka_dataDostarczenia IS NULL;
+
+DELETE FROM przesylki WHERE przesylka_ID = 123446;
+
+INSERT INTO przesylki (przesylka_ID, przesylka_nadawca, przesylka_odbiorca, przesylka_miastoDostarczenia, przesylka_dataNadania, przesylka_dataDostarczenia)
+VALUES (988989, 'Jan Nowak', 'Politechnika Wrocławska', 'Wrocław', CURDATE() - INTERVAL 7 DAY, CURDATE());
+
+
+CREATE TABLE kurierzy (
+kurierzy_ID INT NOT NULL,
+kurierzy_miasto VARCHAR(100) NOT NULL,
+kurierzy_czyDostepny CHAR(3),
+kurierzy_aktualnaPrzesylka INT,
+PRIMARY KEY (kurierzy_ID),
+FOREIGN KEY (kurierzy_aktualnaPrzesylka) REFERENCES przesylki(przesylka_ID)
+);
+
+INSERT INTO kurierzy (kurierzy_ID, kurierzy_miasto, kurierzy_czyDostepny, kurierzy_aktualnaPrzesylka) VALUES
+('012', 'Wrocław', 'NIE', '137654'),
+('215', 'Kraków', 'TAK', NULL),
+('873', 'Poznań', 'NIE', '252258');
